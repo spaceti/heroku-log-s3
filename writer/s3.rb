@@ -33,7 +33,7 @@ class Writer < WriterBase
     "or listing its objects: #{e.message}"
   end
 
-  s3_client = Aws::S3::Client.new({
+  S3_CLIENT = Aws::S3::Client.new({
                                     access_key_id: ENV.fetch('S3_KEY'),
                                     secret_access_key: ENV.fetch('S3_SECRET'),
                                     region: ENV.fetch('AWS_REGION')
@@ -46,7 +46,7 @@ class Writer < WriterBase
 
   def stream_to(filepath)
     @logger.info "begin #{filepath}"
-    list_bucket_objects(s3_client, ENV.fetch('S3_BUCKET'))
+    list_bucket_objects(S3_CLIENT, ENV.fetch('S3_BUCKET'))
     # S3_BUCKET_OBJECTS[filepath].write(
     #   @io,
     #   estimated_content_length: 1 # low-ball estimate; so we can close buffer by returning nil
