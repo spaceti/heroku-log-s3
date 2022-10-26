@@ -4,6 +4,39 @@ require_relative './base.rb'
 
 class Writer < WriterBase
 
+  # Uploads an object to a bucket in Amazon Simple Storage Service (Amazon S3).
+  #
+  # Prerequisites:
+  #
+  # - An S3 bucket.
+  # - An object to upload to the bucket.
+  #
+  # @param s3_client [Aws::S3::Client] An initialized S3 client.
+  # @param bucket_name [String] The name of the bucket.
+  # @param object_key [String] The name of the object.
+  # @return [Boolean] true if the object was uploaded; otherwise, false.
+  # @example
+  #   exit 1 unless object_uploaded?(
+  #     Aws::S3::Client.new(region: 'us-east-1'),
+  #     'doc-example-bucket',
+  #     'my-file.txt'
+  #   )
+  def object_uploaded?(s3_client, bucket_name, object_key, object_body)
+    response = s3_client.put_object(
+      bucket: bucket_name,
+      key: object_key,
+      body: object_body
+    )
+    if response.etag
+      return true
+    else
+      return false
+    end
+  rescue StandardError => e
+    puts "Error uploading object: #{e.message}"
+    return false
+  end
+
   def list_bucket_objects(s3_client, bucket_name, max_objects = 50)
     if max_objects < 1 || max_objects > 1000
       puts 'Maximum number of objects to request must be between 1 and 1,000.'
@@ -39,11 +72,6 @@ class Writer < WriterBase
                                     region: ENV.fetch('AWS_REGION')
                                   })
 
-  # S3_BUCKET_OBJECTS = AWS::S3.new({
-  #   access_key_id: ENV.fetch('S3_KEY'),
-  #   secret_access_key: ENV.fetch('S3_SECRET'),
-  # }).buckets[ENV.fetch('S3_BUCKET')].objects
-
   def stream_to(filepath)
     @logger.info "begin #{filepath}"
     list_bucket_objects(S3_CLIENT, ENV.fetch('S3_BUCKET'))
@@ -51,6 +79,11 @@ class Writer < WriterBase
     #   @io,
     #   estimated_content_length: 1 # low-ball estimate; so we can close buffer by returning nil
     # )
+    if object_uploaded?(S3_CLIENT, ENV.fetch('S3_BUCKET'), filepath, @io)
+      puts "Object '#{filepath}' uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
+    else
+      puts "Object '#{filepath}' not uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
+    end
     @logger.info "end #{filepath}"
   end
 
