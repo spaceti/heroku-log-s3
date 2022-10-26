@@ -79,7 +79,7 @@ class Writer < WriterBase
     #   @io,
     #   estimated_content_length: 1 # low-ball estimate; so we can close buffer by returning nil
     # )
-    if object_uploaded?(S3_CLIENT, ENV.fetch('S3_BUCKET'), filepath, @io)
+    if object_uploaded?(S3_CLIENT, ENV.fetch('S3_BUCKET'), filepath, @io.read())
       puts "Object '#{filepath}' uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
     else
       puts "Object '#{filepath}' not uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
