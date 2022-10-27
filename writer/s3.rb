@@ -36,7 +36,7 @@ class Writer < WriterBase
     puts "Error uploading object: #{e.message}"
     return false
   end
-  
+
   S3_CLIENT = Aws::S3::Client.new({
                                     access_key_id: ENV.fetch('S3_KEY'),
                                     secret_access_key: ENV.fetch('S3_SECRET'),
@@ -49,11 +49,18 @@ class Writer < WriterBase
     #   @io,
     #   estimated_content_length: 1 # low-ball estimate; so we can close buffer by returning nil
     # )
-    if object_uploaded?(S3_CLIENT, ENV.fetch('S3_BUCKET'), filepath, @io.read(0))
-      puts "Object '#{filepath}' uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
-    else
-      puts "Object '#{filepath}' not uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
+    all_data = []
+    while data = @io.read(4068)
+      all_data.push data
     end
+
+    @logger.info all_data
+
+    # if object_uploaded?(S3_CLIENT, ENV.fetch('S3_BUCKET'), filepath, all_data)
+    #   puts "Object '#{filepath}' uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
+    # else
+    #   puts "Object '#{filepath}' not uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
+    # end
     @logger.info "end #{filepath}"
   end
 

@@ -16,15 +16,15 @@ class QueueIO
     return if @closed
     @pending.pop(true) # non-blocking, best effort
 
-  rescue Exception
-    @pending.push @queue.shift
-    now = Time.now.to_i
-    if (@start + @duration) < now
-      @start = now
-      return # make `eof?` return true
-    else
-      return @pending.shift
-    end
+    rescue Exception
+      @pending.push @queue.shift
+      now = Time.now.to_i
+      if (@start + @duration) < now
+        @start = now
+        return # make `eof?` return true
+      else
+        return @pending.shift
+      end
   end
 
   def eof?
