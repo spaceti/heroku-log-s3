@@ -49,7 +49,7 @@ class Writer < WriterBase
     while data = @io.read()
       all_data.push data
     end
-    if object_uploaded?(S3_CLIENT, ENV.fetch('S3_BUCKET'), filepath, all_data)
+    if object_uploaded?(S3_CLIENT, ENV.fetch('S3_BUCKET'), filepath, all_data.join())
       @logger.info "Object '#{filepath}' uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
     else
       @logger.info "Object '#{filepath}' not uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
