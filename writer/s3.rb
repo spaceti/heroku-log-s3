@@ -33,7 +33,7 @@ class Writer < WriterBase
       return false
     end
   rescue StandardError => e
-    puts "Error uploading object: #{e.message}"
+    @logger.error "Error uploading object: #{e.message}"
     return false
   end
 
@@ -45,22 +45,15 @@ class Writer < WriterBase
 
   def stream_to(filepath)
     @logger.info "begin #{filepath}"
-    # S3_BUCKET_OBJECTS[filepath].write(
-    #   @io,
-    #   estimated_content_length: 1 # low-ball estimate; so we can close buffer by returning nil
-    # )
     all_data = []
-    while data = @io.read(4068)
+    while data = @io.read()
       all_data.push data
     end
-
-    @logger.info all_data
-
-    # if object_uploaded?(S3_CLIENT, ENV.fetch('S3_BUCKET'), filepath, all_data)
-    #   puts "Object '#{filepath}' uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
-    # else
-    #   puts "Object '#{filepath}' not uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
-    # end
+    if object_uploaded?(S3_CLIENT, ENV.fetch('S3_BUCKET'), filepath, all_data)
+      @logger.info "Object '#{filepath}' uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
+    else
+      @logger.info "Object '#{filepath}' not uploaded to bucket '#{ENV.fetch('S3_BUCKET')}'."
+    end
     @logger.info "end #{filepath}"
   end
 

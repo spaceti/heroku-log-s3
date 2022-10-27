@@ -8,7 +8,7 @@ class Writer < WriterBase
     file = "output/#{filepath}"
     FileUtils.mkdir_p File.dirname(file)
     open(file, "w") do |f|
-      while data = @io.read(4068)
+      while data = @io.read()
         f.write(data)
       end
     end
